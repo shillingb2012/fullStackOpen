@@ -1,0 +1,23 @@
+title Part 0.6 New note (SPA)
+
+# OBJECTIVE
+# Create a diagram depicting the situation where the user creates a 
+# new note using the single page version of the app.
+
+# NOTE
+# Very different, only 1 event on the network, no multiple GETs
+
+note over browser
+User enters a new note into new_note form
+and clicks Save (submit)
+(Prevents default event, new note added 
+and sent with POST)
+end note
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over server
+Parses POST data
+end note
+
+server-->browser: Success
