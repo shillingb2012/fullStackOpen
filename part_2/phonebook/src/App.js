@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import PersonForm from './components/PersonForm'
 import FilterInput from './components/FilterInput'
 import Persons from './components/Persons'
+import NotificationMessage from './components/NotificationMessage'
+import ErrorMessage from './components/ErrorMessage'
 import personService from './services/persons'
 
 const App = () => {
@@ -10,6 +12,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [newFilteredPersons, setNewFilteredPersons] = useState(persons)
+  const [message, setNewMessage] = useState(null)
+  const [errorMessage, setNewErrorMessage] = useState(null)
 
   // Get data stored on the server
   useEffect(() => {
@@ -34,6 +38,15 @@ const App = () => {
           .update(updatePerson.id, updatePerson)
           .then((updated) => {
             setNewFilteredPersons(persons.map(person => person.id !== updatePerson.id ? person : updated))
+            setNewMessage(`${updated.name} was successfully updated to: ${updated.number}`)
+            // Reset success message after 3 seconds
+            setTimeout(() => {setNewMessage(null)}, 3000)
+          })
+          .catch((error) => {
+            console.log({error})
+            setNewErrorMessage(`Error: Information of ${newName} has already been removed from server`)
+            // Reset success message after 3 seconds
+            setTimeout(() => {setNewErrorMessage(null)}, 3000)
           })
         setNewName('')
         setNewNumber('')
@@ -65,6 +78,9 @@ const App = () => {
         setNewName('')
         setNewNumber('')
         setNewFilter('')
+        setNewMessage(`${returnedPerson.name} was successfully added`)
+        // Reset success message after 3 seconds
+        setTimeout(() => {setNewMessage(null)}, 3000)
       })
   }
 
@@ -96,13 +112,16 @@ const App = () => {
         filterInputValue={newFilter} filterOnChange={handleFilterChange}
       />
 
+      <NotificationMessage message={message}/>
+      <ErrorMessage message={errorMessage}/>
+
       <h3>Add a new</h3>
       <PersonForm 
         formSubmit={addPerson} nameValue={newName} nameOnChange={handleNameChange} numberValue={newNumber} numberOnChange={handleNumberChange} 
       />
 
       <h3>Numbers</h3>
-      <Persons persons={newFilteredPersons} updatePersons={setNewFilteredPersons} />
+      <Persons persons={newFilteredPersons} updatePersons={setNewFilteredPersons} updateSuccess={setNewMessage} />
     </div>
   )
 }
