@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import FilterInput from './components/FilterInput'
 import Persons from './components/Persons'
-
-
+import personService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -15,11 +13,11 @@ const App = () => {
 
   // Get data stored on the server
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-        setNewFilteredPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+        setNewFilteredPersons(initialPersons)
       })
       
   }, [])
@@ -28,25 +26,46 @@ const App = () => {
     event.preventDefault()
     // Check if person already exists, throw alert if this is the case
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
-      setNewName('')
-      setNewNumber('')
-      return
+      // Ask if user wants to update the number for existing person
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const updatePerson = persons.find(p => p.name === newName)
+        updatePerson.number = newNumber
+        personService
+          .update(updatePerson.id, updatePerson)
+          .then((updated) => {
+            setNewFilteredPersons(persons.map(person => person.id !== updatePerson.id ? person : updated))
+          })
+        setNewName('')
+        setNewNumber('')
+        return
+      }
+      // User selected cancel, do not update existing number
+      else {
+        setNewName('')
+        setNewNumber('')
+        return
+      }
+      
     }
     // Enforce a name to be entered to submit
     else if (newName === '') {
       alert ('Name cannot be blank')
+      return
     }
     const personObject = {
       name: newName,
-      number: newNumber,
-      id: persons.length + 1
+      number: newNumber
     }
-    setPersons(persons.concat(personObject))
-    setNewFilteredPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
-    setNewFilter('')
+
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewFilteredPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+        setNewFilter('')
+      })
   }
 
   function filterPeople(filterValue) {
@@ -83,7 +102,7 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons persons={newFilteredPersons} />
+      <Persons persons={newFilteredPersons} updatePersons={setNewFilteredPersons} />
     </div>
   )
 }
