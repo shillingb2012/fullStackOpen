@@ -1,7 +1,7 @@
-POST http://localhost:3001/api/persons
+POST https://rocky-earth-88922.herokuapp.com/api/persons
 Content-Type: application/json
 
 {
-    "name": "Brock Shilling",
-    "number": "12-34-56789"
+    "name": "Stella Shilling",
+    "number": "99-34-875486"
 }

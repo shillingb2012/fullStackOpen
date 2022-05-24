@@ -1,1 +1,1 @@
-GET https://obscure-shore-59887.herokuapp.com/api/persons
+GET https://rocky-earth-88922.herokuapp.com/api/persons

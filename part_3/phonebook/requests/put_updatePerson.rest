@@ -1,0 +1,7 @@
+PUT https://rocky-earth-88922.herokuapp.com/api/persons/628cdee3e7cb05cd399f0be0
+Content-Type: application/json
+
+{
+    "name": "Stella Shilling",
+    "number": "123"
+}
